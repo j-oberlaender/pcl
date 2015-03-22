@@ -429,14 +429,20 @@ main (int argc, char** argv)
       return (-1);
 
     // Calculate transform if available.
-    if (pose_x.size () > i && pose_y.size () > i && pose_z.size () > i &&
-        pose_roll.size () > i && pose_pitch.size () > i && pose_yaw.size () > i)
+    if (pose_x.size () > i && pose_y.size () > i && pose_z.size () > i)
     {
+      float yaw = 0, pitch = 0, roll = 0;
+      if (pose_roll.size () > i && pose_pitch.size () > i && pose_yaw.size () > i)
+      {
+        yaw = pose_yaw[i];
+        pitch = pose_pitch[i];
+        roll = pose_roll[i];
+      }
       Eigen::Affine3f pose =
         Eigen::Translation3f (Eigen::Vector3f (pose_x[i], pose_y[i], pose_z[i])) *
-        Eigen::AngleAxisf (pose_yaw[i],   Eigen::Vector3f::UnitZ ()) *
-        Eigen::AngleAxisf (pose_pitch[i], Eigen::Vector3f::UnitY ()) *
-        Eigen::AngleAxisf (pose_roll[i],  Eigen::Vector3f::UnitX ());
+        Eigen::AngleAxisf (yaw,   Eigen::Vector3f::UnitZ ()) *
+        Eigen::AngleAxisf (pitch, Eigen::Vector3f::UnitY ()) *
+        Eigen::AngleAxisf (roll,  Eigen::Vector3f::UnitX ());
       orientation = pose.rotation () * orientation;
       origin.block<3, 1> (0, 0) = (pose * Eigen::Translation3f (origin.block<3, 1> (0, 0))).translation ();
     }
